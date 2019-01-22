@@ -14,14 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Scanner;
-import java.util.Set;
+import java.util.*;
 
 /*
  * NOTE : =============================================================
@@ -133,6 +126,10 @@ public class AddressBook {
     private static final String COMMAND_EXIT_DESC = "Exits the program.";
     private static final String COMMAND_EXIT_EXAMPLE = COMMAND_EXIT_WORD;
 
+    private static final String COMMAND_SORT_WORD = "sort";
+    private static final String COMMAND_SORT_DESC = "Displays all persons as a sorted list in alphabetical order";
+    private static final String COMMAND_SORT_EXAMPLE = COMMAND_SORT_WORD;
+
     private static final String DIVIDER = "===================================================";
 
 
@@ -198,7 +195,7 @@ public class AddressBook {
     /*
      * NOTE : =============================================================
      * Notice how this method solves the whole problem at a very high level.
-     * We can understand the high-level logic of the program by reading this
+     * We can understand the high-level logic of the program by reading this 
      * method alone.
      * If the reader wants a deeper understanding of the solution, she can go
      * to the next level of abstraction by reading the methods that are
@@ -375,6 +372,8 @@ public class AddressBook {
             return executeFindPersons(commandArgs);
         case COMMAND_LIST_WORD:
             return executeListAllPersonsInAddressBook();
+            case COMMAND_SORT_WORD:
+                return executeSortAllPersonsInAddressBook();
         case COMMAND_DELETE_WORD:
             return executeDeletePerson(commandArgs);
         case COMMAND_CLEAR_WORD:
@@ -512,6 +511,22 @@ public class AddressBook {
                                                           : MESSAGE_PERSON_NOT_IN_ADDRESSBOOK; // not found
     }
 
+    /**
+     * Displays all person in address book to the user; in alphabetical order.
+     *
+     * @return feedback display message for operation results
+     */
+    private static String executeSortAllPersonsInAddressBook(){
+        ArrayList<String[]> toBeDisplayed = getAllPersonsInAddressBook();
+        Collections.sort(toBeDisplayed, new Comparator<String[]>(){
+            @Override
+            public int compare(String[] o1, String[] o2) {
+                return o1[0].toLowerCase().compareTo(o2[0].toLowerCase());
+            }
+        });
+        showToUser(toBeDisplayed);
+        return getMessageForPersonsDisplayedSummary(toBeDisplayed);
+    }
     /**
      * Checks validity of delete person argument string's format.
      *
@@ -1088,7 +1103,8 @@ public class AddressBook {
                 + getUsageInfoForDeleteCommand() + LS
                 + getUsageInfoForClearCommand() + LS
                 + getUsageInfoForExitCommand() + LS
-                + getUsageInfoForHelpCommand();
+                + getUsageInfoForHelpCommand()
+                + getUsageInfoForSortCommand() + LS;
     }
 
     /** Returns the string for showing 'add' command usage instruction */
@@ -1136,7 +1152,11 @@ public class AddressBook {
                 + String.format(MESSAGE_COMMAND_HELP_EXAMPLE, COMMAND_EXIT_EXAMPLE);
     }
 
-
+    /** Returns the string for showing 'sort' command usage instruction*/
+    private static String getUsageInfoForSortCommand() {
+        return String.format(MESSAGE_COMMAND_HELP, COMMAND_SORT_WORD, COMMAND_SORT_DESC) + LS
+                + String.format(MESSAGE_COMMAND_HELP_EXAMPLE, COMMAND_SORT_EXAMPLE) + LS;
+    }
     /*
      * ============================
      *         UTILITY METHODS
